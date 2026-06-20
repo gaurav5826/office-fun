@@ -149,6 +149,13 @@
       margin-bottom: 0.5rem;
     }
 
+    .card-dates {
+      font-size: 0.55rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+
     .card-mood-emoji { font-size: 1.1rem; margin-bottom: 0.2rem; }
 
     .card-mood-text {
@@ -440,6 +447,7 @@
       <div class="card" onclick="openModal('${sign.key}')">
         <div class="card-sign-emoji">${sign.emoji}</div>
         <div class="card-name">${sign.name}</div>
+        <div class="card-dates">${sign.dates}</div>
         <div class="card-mood-emoji">${s.mood_emoji||''}</div>
         <div class="card-mood-text">${s.mood||''}</div>
         <span class="bug-dot ${s.bug_energy}"></span>
