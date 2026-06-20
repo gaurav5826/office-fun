@@ -536,7 +536,8 @@
   document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
 
   async function load() {
-    const today = new Date().toLocaleDateString('en-CA');
+    const params = new URLSearchParams(window.location.search);
+    const today = params.get('date') || new Date().toLocaleDateString('en-CA');
     document.getElementById('date-display').textContent =
       new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
