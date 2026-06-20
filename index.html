@@ -425,7 +425,7 @@
   }
 
   function renderCard(sign, data) {
-    const s = data[sign.key];
+    const s = data.signs[sign.key];
     if (!s) return '';
 
     return `
