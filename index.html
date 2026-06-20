@@ -565,7 +565,7 @@
     const params = new URLSearchParams(window.location.search);
     const today = params.get('date') || new Date().toLocaleDateString('en-CA');
     document.getElementById('date-display').textContent =
-      new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+      new Date(today + 'T12:00:00').toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
     try {
       const res = await fetch(`data/${today}.json`);
