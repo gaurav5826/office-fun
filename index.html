@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dev Horoscope ✨</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+
+    :root {
+      --bg: #0a0a1a;
+      --card-bg: #0f0f2a;
+      --card-border: #2a2a5a;
+      --accent: #9b6dff;
+      --accent2: #ff6db3;
+      --gold: #ffd700;
+      --text: #e0e0ff;
+      --muted: #8888aa;
+      --prophecy-bg: #1a0a2e;
+      --prophecy-border: #9b6dff;
+      --star-on: #ffd700;
+      --star-off: #2a2a4a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(155, 109, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 109, 179, 0.06) 0%, transparent 50%);
+    }
+
+    /* Stars background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 90%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 65%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 5%, rgba(255,255,255,0.4) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    header .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    #date-display {
+      margin-top: 0.75rem;
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      opacity: 0.85;
+    }
+
+    .divider {
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 1.5rem auto;
+    }
+
+    #no-data {
+      display: none;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    #no-data .no-data-emoji { font-size: 4rem; margin-bottom: 1rem; }
+    #no-data h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    #no-data p { color: var(--muted); }
+
+    #grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      padding: 0.75rem 1rem 4rem;
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 768px) {
+      #grid {
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        max-width: 1400px;
+        padding: 1rem 2rem 4rem;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(155,109,255,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(155, 109, 255, 0.4);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .sign-emoji { font-size: 2.2rem; }
+
+    .sign-info h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.05em;
+    }
+
+    .sign-dates {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    .horoscope-text {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: #b0b0cc;
+      font-style: italic;
+      border-left: 2px solid rgba(155,109,255,0.4);
+      padding-left: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-of-day {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.08);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 20px;
+      padding: 0.25rem 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .meta-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .meta-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.3rem;
+    }
+
+    .meta-value {
+      font-size: 0.88rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .mood-value {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .colour-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+
+    .stars {
+      display: flex;
+      gap: 2px;
+    }
+
+    .star {
+      font-size: 0.8rem;
+    }
+
+    .ratings-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .rating-item {
+      text-align: center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.5rem 0.4rem;
+    }
+
+    .rating-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+
+    .dev-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .dev-item {
+      background: rgba(155, 109, 255, 0.05);
+      border: 1px solid rgba(155, 109, 255, 0.15);
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .dev-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.3rem;
+    }
+
+    .dev-value {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .bug-low { color: #4caf7d; }
+    .bug-medium { color: var(--gold); }
+    .bug-high { color: #ff6b6b; }
+
+    .deploy-yes { color: #4caf7d; }
+    .deploy-no { color: #ff6b6b; }
+    .deploy-maybe { color: var(--gold); }
+
+    .prophecy-box {
+      background: var(--prophecy-bg);
+      border: 1px solid var(--prophecy-border);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prophecy-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(155,109,255,0.08), transparent);
+      pointer-events: none;
+    }
+
+    .prophecy-label {
+      font-size: 0.68rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .prophecy-text {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 2rem 1rem 1.5rem; }
+      .card { padding: 1.25rem; }
+      .sign-emoji { font-size: 1.8rem; }
+      .sign-info h2 { font-size: 1.1rem; }
+      .horoscope-text { font-size: 0.82rem; }
+      .prophecy-text { font-size: 0.9rem; }
+      .meta-row { grid-template-columns: 1fr 1fr; }
+      .ratings-row { grid-template-columns: 1fr 1fr 1fr; }
+      .dev-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="font-size:2.5rem; margin-bottom:0.5rem;">🔮</div>
+  <h1>Dev Horoscope</h1>
+  <div class="subtitle">The stars know your sprint velocity</div>
+  <div id="date-display"></div>
+  <div class="divider"></div>
+</header>
+
+<div id="no-data">
+  <div class="no-data-emoji">🌑</div>
+  <h2>The Stars Are Silent Today</h2>
+  <p>No horoscope data found for today.<br>Mercury is in retrograde. Or someone forgot to run the command.</p>
+</div>
+
+<div id="grid"></div>
+
+<footer>
+  ✨ Data from the cosmos (and horoscope.com + AstroTalk) · For entertainment purposes only
+</footer>
+
+<script>
+  const SIGNS = [
+    { key: 'aries',       name: 'Aries',       emoji: '♈', dates: 'Mar 21 – Apr 19' },
+    { key: 'taurus',      name: 'Taurus',       emoji: '♉', dates: 'Apr 20 – May 20' },
+    { key: 'gemini',      name: 'Gemini',       emoji: '♊', dates: 'May 21 – Jun 20' },
+    { key: 'cancer',      name: 'Cancer',       emoji: '♋', dates: 'Jun 21 – Jul 22' },
+    { key: 'leo',         name: 'Leo',          emoji: '♌', dates: 'Jul 23 – Aug 22' },
+    { key: 'virgo',       name: 'Virgo',        emoji: '♍', dates: 'Aug 23 – Sep 22' },
+    { key: 'libra',       name: 'Libra',        emoji: '♎', dates: 'Sep 23 – Oct 22' },
+    { key: 'scorpio',     name: 'Scorpio',      emoji: '♏', dates: 'Oct 23 – Nov 21' },
+    { key: 'sagittarius', name: 'Sagittarius',  emoji: '♐', dates: 'Nov 22 – Dec 21' },
+    { key: 'capricorn',   name: 'Capricorn',    emoji: '♑', dates: 'Dec 22 – Jan 19' },
+    { key: 'aquarius',    name: 'Aquarius',     emoji: '♒', dates: 'Jan 20 – Feb 18' },
+    { key: 'pisces',      name: 'Pisces',       emoji: '♓', dates: 'Feb 19 – Mar 20' },
+  ];
+
+  function stars(n, max = 5) {
+    return Array.from({ length: max }, (_, i) =>
+      `<span class="star">${i < n ? '⭐' : '✦'}</span>`
+    ).join('');
+  }
+
+  function bugClass(level) {
+    return level === 'Low' ? 'bug-low' : level === 'High' ? 'bug-high' : 'bug-medium';
+  }
+
+  function deployClass(val) {
+    const v = val?.toLowerCase() || '';
+    if (v.startsWith('yes')) return 'deploy-yes';
+    if (v.startsWith('no')) return 'deploy-no';
+    return 'deploy-maybe';
+  }
+
+  function renderCard(sign, data) {
+    const s = data[sign.key];
+    if (!s) return '';
+
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div class="sign-emoji">${sign.emoji}</div>
+          <div class="sign-info">
+            <h2>${sign.name}</h2>
+            <div class="sign-dates">${sign.dates}</div>
+          </div>
+        </div>
+
+        <div class="horoscope-text">${s.horoscope_text || ''}</div>
+
+        ${s.card_of_day ? `<div class="card-of-day">🃏 Card of the Day: <strong>${s.card_of_day}</strong></div>` : ''}
+
+        <div class="meta-row">
+          <div class="meta-item">
+            <div class="meta-label">Mood</div>
+            <div class="meta-value mood-value">
+              <span>${s.mood_emoji || ''}</span>
+              <span>${s.mood || ''}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lucky Number</div>
+            <div class="meta-value">🔢 ${s.lucky_number || '?'}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lucky Colour</div>
+            <div class="meta-value" style="display:flex;align-items:center;gap:0.4rem;">
+              <span class="colour-dot" style="background:${s.lucky_colour_hex || '#888'}"></span>
+              ${s.lucky_colour || '?'}
+            </div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">☕ Coffee Index</div>
+            <div class="meta-value">${s.coffee_index || '?'} / 5</div>
+          </div>
+        </div>
+
+        <div class="ratings-row">
+          <div class="rating-item">
+            <div class="rating-label">Hustle</div>
+            <div class="stars">${stars(s.hustle || 0)}</div>
+          </div>
+          <div class="rating-item">
+            <div class="rating-label">Vibe</div>
+            <div class="stars">${stars(s.vibe || 0)}</div>
+          </div>
+          <div class="rating-item">
+            <div class="rating-label">Success</div>
+            <div class="stars">${stars(s.success || 0)}</div>
+          </div>
+        </div>
+
+        <div class="dev-row">
+          <div class="dev-item">
+            <div class="dev-label">🐛 Bug Energy</div>
+            <div class="dev-value ${bugClass(s.bug_energy)}">${s.bug_energy || '?'}</div>
+          </div>
+          <div class="dev-item">
+            <div class="dev-label">🚀 Deploy Today?</div>
+            <div class="dev-value ${deployClass(s.deploy_today)}">${s.deploy_today || '?'}</div>
+          </div>
+        </div>
+
+        <div class="prophecy-box">
+          <div class="prophecy-label">🔮 Today's Prophecy</div>
+          <div class="prophecy-text">${s.prophecy || ''}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function load() {
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+    document.getElementById('date-display').textContent =
+      new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    try {
+      const res = await fetch(`data/${today}.json`);
+      if (!res.ok) throw new Error('not found');
+      const data = await res.json();
+
+      const grid = document.getElementById('grid');
+      grid.innerHTML = SIGNS.map(s => renderCard(s, data)).join('');
+    } catch {
+      document.getElementById('no-data').style.display = 'block';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
